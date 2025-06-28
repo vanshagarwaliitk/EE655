@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gait Recognition System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+     
+</head>
+<body>
+    <header>
+        <h1>Gait Recognition System</h1>
+        <p>Machine Learning-Based Identification Through Walking Patterns</p>
+    </header>
+    
+    <div class="container">
+        <div class="main-content">
+            <div class="video-container">
+                <div class="video-box">
+                    <h3>Input Video</h3>
+                    <div class="video-display">
+                        <img src="/api/placeholder/480/320" alt="placeholder" />
+                    </div>
+                    <div class="controls">
+                        <!-- <button class="control-btn upload-btn">Upload Video</button> -->
+                        <button class="control-btn upload-btn" onclick="document.getElementById('video-upload').click();">Upload Video</button>
+                        <form id="upload-form" action="/upload" method="POST" enctype="multipart/form-data" style="display: none;">
+                            <input type="file" name="video" id="video-upload" accept="video/*" onchange="uploadVideo()" />
+                        </form>
+                        
+                        <!-- <button class="control-btn">Record</button> -->
+                    </div>
+                </div>
+                
+                <div class="video-box">
+                    <h3>Processed Video</h3>
+                    <!-- <div class="video-display">
+                        <img src="/api/placeholder/480/320" alt="placeholder" />
+                    </div> -->
+                    <div class="video-display" id="video-container">
+                        <img id="placeholder-img" src="/api/placeholder/480/320" alt="placeholder" />
+                    </div>
+                    
+                    <div class="controls">
+                        <button class="control-btn">Play</button>
+                        <button class="control-btn">Pause</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-container">
+                <h2>Recognition Results</h2>
+                <div class="result-box">
+                    <p>Subject Classification:</p>
+                    <div class="classification-label">
+                        <span id="result-label">Awaiting Analysis</span>
+                    </div>
+                    <p class="confidence">Confidence: <span id="confidence-value">--</span></p>
+                </div>
+                
+                <div class="progress-container">
+                    <p>Processing Status: <span id="status">Ready</span></p>
+                </div>
+                
+                <div class="model-controls">
+                    <button class="model-btn" id="analyze-btn">Analyze Gait</button>
+                    <button class="model-btn" id="reset-btn">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Gait Recognition System &copy; 2025</p>
+    </footer>
+    
+    <script>
+        // function to upload to video 
+    //     function uploadVideo() {
+    //     const form = document.getElementById('upload-form');
+    //     const formData = new FormData(form);
+        
+    //     fetch('/upload', {
+    //         method: 'POST',
+    //         body: formData
+    //     }).then(response => {
+    //         if (response.ok) {
+    //             alert("✅ Video uploaded successfully!");
+    //         } else {
+    //             alert("❌ Upload failed.");
+    //         }
+    //     }).catch(error => {
+    //         console.error("Upload error:", error);
+    //         alert("❌ Upload failed.");
+    //     });
+    // }
+    function uploadVideo() {
+        const form = document.getElementById('upload-form');
+        const formData = new FormData(form);
+        const fileInput = document.getElementById('video-upload');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("Please select a video file.");
+            return;
+        }
+
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            if (response.ok) {
+                alert("✅ Video uploaded successfully!");
+                const videoURL = URL.createObjectURL(file);
+
+                // Replace the placeholder <img> with an embedded video
+                const container = document.querySelector('.video-box .video-display'); // targets the first video box
+                container.innerHTML = ''; // ← this clears the existing image or content
+
+                const video = document.createElement('video');
+                video.controls = true;
+                video.src = videoURL;
+                video.style.width = '100%';
+                video.style.maxHeight = '100%';
+
+                container.appendChild(video);
+            } else {
+                alert("❌ Upload failed.");
+            }
+        }).catch(error => {
+            console.error("Upload error:", error);
+            alert("❌ Upload failed.");
+        });
+    }
+        // Demo functionality - for illustration purposes
+        document.getElementById('analyze-btn').addEventListener('click', function() {
+            // Simulate processing
+            document.getElementById('status').textContent = "Processing...";
+            
+            setTimeout(() => {
+                // Update with mock results after "processing"
+                document.getElementById('result-label').textContent = "Person A";
+                document.getElementById('confidence-value').textContent = "94.7%";
+                document.getElementById('status').textContent = "Analysis Complete";
+            }, 2000);
+        });
+        
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            document.getElementById('result-label').textContent = "Awaiting Analysis";
+            document.getElementById('confidence-value').textContent = "--";
+            document.getElementById('status').textContent = "Ready";
+        });
+    </script>
+</html>
